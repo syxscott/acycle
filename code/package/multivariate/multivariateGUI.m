@@ -92,13 +92,14 @@ uieditfield(S.UIFigure,'text','Editable','off','Position',[15 674 1150 22], ...
 S.PMethod = uipanel(S.UIFigure,'Title','Method','Position',[15 552 320 114],'BackgroundColor',S.bg);
 % The SelectionChangedFcn is attached only after the initial selection is
 % made, so programmatic selection does not fire it during build-out.
-S.BGMethod = uibuttongroup(S.PMethod,'BorderType','none','BackgroundColor',S.bg);
+S.BGMethod = uibuttongroup(S.PMethod,'BorderType','none','BackgroundColor',S.bg, ...
+    'Units','pixels','Position',[1 1 316 88]);
 S.RPcoa = uiradiobutton(S.BGMethod,'Text','PCoA ordination (principal coordinates)', ...
-    'Tag','pcoa','Position',[12 62 296 18],'BackgroundColor',S.bg);
+    'Tag','pcoa','Position',[12 64 292 18],'BackgroundColor',S.bg);
 S.RAnosim = uiradiobutton(S.BGMethod,'Text','ANOSIM (rank test between groups)', ...
-    'Tag','anosim','Position',[12 38 296 18],'BackgroundColor',S.bg);
+    'Tag','anosim','Position',[12 38 292 18],'BackgroundColor',S.bg);
 S.RPermanova = uiradiobutton(S.BGMethod,'Text','PERMANOVA (pseudo-F between groups)', ...
-    'Tag','permanova','Position',[12 14 296 18],'BackgroundColor',S.bg);
+    'Tag','permanova','Position',[12 12 292 18],'BackgroundColor',S.bg);
 switch S.method
     case 'pcoa'
         S.BGMethod.SelectedObject = S.RPcoa;
@@ -108,55 +109,59 @@ switch S.method
         S.BGMethod.SelectedObject = S.RPermanova;
 end
 S.BGMethod.SelectionChangedFcn = @(src,evt)onMethodChange(src);
+if strcmp(S.method,'pcoa')
+    methodNote = 'Optional for PCoA (colors the ordination).';
+else
+    methodNote = 'The test permutes these group labels.';
+end
 
 % Data summary
 S.PData = uipanel(S.UIFigure,'Title','Data (rows = samples, columns = series)', ...
     'Position',[15 420 320 124],'BackgroundColor',S.bg);
-S.LDataSummary = uilabel(S.PData,'Position',[12 92 296 18],'Text','', ...
+S.LDataSummary = uilabel(S.PData,'Position',[12 80 296 16],'Text','', ...
     'BackgroundColor',S.bg,'FontWeight','bold');
-S.LAxisRange = uilabel(S.PData,'Position',[12 72 296 18],'Text','', ...
+S.LAxisRange = uilabel(S.PData,'Position',[12 60 296 16],'Text','', ...
     'BackgroundColor',S.bg);
-S.TSeriesNames = uitextarea(S.PData,'Position',[12 10 296 56],'Editable','off', ...
+S.TSeriesNames = uitextarea(S.PData,'Position',[12 8 296 48],'Editable','off', ...
     'BackgroundColor',[1 1 1]);
 
 % Distance metric
 S.PDistance = uipanel(S.UIFigure,'Title','Distance metric','Position',[15 312 320 100], ...
     'BackgroundColor',S.bg);
-uilabel(S.PDistance,'Position',[12 62 120 18],'Text','Metric','BackgroundColor',S.bg);
+uilabel(S.PDistance,'Position',[12 52 120 18],'Text','Metric','BackgroundColor',S.bg);
 S.DMetric = uidropdown(S.PDistance, ...
     'Items',{'Euclidean','Bray-Curtis','Jaccard','Manhattan'}, ...
-    'Value','Euclidean','Position',[140 58 160 22], ...
+    'Value','Euclidean','Position',[140 48 160 22], ...
     'ValueChangedFcn',@(src,evt)onMetricChange(src));
 S.CStandardize = uicheckbox(S.PDistance,'Text','Standardize variables (z-score)', ...
-    'Value',true,'Position',[12 30 250 18],'BackgroundColor',S.bg);
-uilabel(S.PDistance,'Position',[12 8 296 18], ...
+    'Value',true,'Position',[12 26 250 18],'BackgroundColor',S.bg);
+uilabel(S.PDistance,'Position',[12 4 296 16], ...
     'Text','Z-score each series before the distance is computed.', ...
     'FontSize',9,'FontColor',[0.35 0.35 0.35],'BackgroundColor',S.bg);
 
 % Groups
 S.PGroups = uipanel(S.UIFigure,'Title','Groups (depth/time boundaries)', ...
     'Position',[15 172 320 132],'BackgroundColor',S.bg);
-uilabel(S.PGroups,'Position',[12 96 200 18],'Text','Boundaries (ascending)','BackgroundColor',S.bg);
-S.EBoundaries = uieditfield(S.PGroups,'text','Value','','Position',[12 72 296 22], ...
+uilabel(S.PGroups,'Position',[12 86 200 16],'Text','Boundaries (ascending)','BackgroundColor',S.bg);
+S.EBoundaries = uieditfield(S.PGroups,'text','Value','','Position',[12 62 296 22], ...
     'Tooltip','Split the depth/time axis into groups, e.g. "25 40" makes G1 < 25 <= G2 < 40 <= G3');
-uilabel(S.PGroups,'Position',[12 44 296 18],'Text', ...
+uilabel(S.PGroups,'Position',[12 40 296 16],'Text', ...
     'Required for ANOSIM / PERMANOVA (>= 2 groups).','BackgroundColor',S.bg);
-S.LGroupNote = uilabel(S.PGroups,'Position',[12 22 296 18],'Text', ...
-    'Optional for PCoA (colors the ordination).','FontSize',9, ...
-    'FontColor',[0.35 0.35 0.35],'BackgroundColor',S.bg);
-S.LGroupSummary = uilabel(S.PGroups,'Position',[12 2 296 16],'Text','', ...
+S.LGroupNote = uilabel(S.PGroups,'Position',[12 22 296 14],'Text',methodNote, ...
+    'FontSize',9,'FontColor',[0.35 0.35 0.35],'BackgroundColor',S.bg);
+S.LGroupSummary = uilabel(S.PGroups,'Position',[12 4 296 14],'Text','', ...
     'FontSize',9,'FontColor',[0 0 0.6],'BackgroundColor',S.bg);
 
 % Settings
 S.PSettings = uipanel(S.UIFigure,'Title','Test settings','Position',[15 64 320 100], ...
     'BackgroundColor',S.bg);
-uilabel(S.PSettings,'Position',[12 62 150 18],'Text','Permutations','BackgroundColor',S.bg);
-S.EPermutations = uieditfield(S.PSettings,'text','Value','999','Position',[170 58 130 22]);
-uilabel(S.PSettings,'Position',[12 36 150 18],'Text','Random seed (empty = auto)','BackgroundColor',S.bg);
-S.ESeed = uieditfield(S.PSettings,'text','Value','','Position',[170 32 130 22]);
-uilabel(S.PSettings,'Position',[12 10 150 18],'Text','PCoA neg. eig. correction','BackgroundColor',S.bg);
+uilabel(S.PSettings,'Position',[12 52 150 16],'Text','Permutations','BackgroundColor',S.bg);
+S.EPermutations = uieditfield(S.PSettings,'text','Value','999','Position',[170 48 130 22]);
+uilabel(S.PSettings,'Position',[12 26 150 16],'Text','Random seed (empty = auto)','BackgroundColor',S.bg);
+S.ESeed = uieditfield(S.PSettings,'text','Value','','Position',[170 22 130 22]);
+uilabel(S.PSettings,'Position',[12 2 150 16],'Text','PCoA neg. eig. correction','BackgroundColor',S.bg);
 S.DCorrection = uidropdown(S.PSettings,'Items',{'cmdscale','lingoes'}, ...
-    'Value','cmdscale','Position',[170 6 130 22]);
+    'Value','cmdscale','Position',[170 0 130 22]);
 
 % Run + status
 S.BRun = uibutton(S.UIFigure,'push','Text','Run analysis', ...
@@ -216,6 +221,9 @@ end
 function onMethodChange(src)
 S = getState(src);
 selected = S.BGMethod.SelectedObject;
+if isempty(selected)
+    return
+end
 S.method = selected.Tag;
 if strcmp(S.method,'pcoa')
     S.LGroupNote.Text = 'Optional for PCoA (colors the ordination).';
@@ -247,31 +255,42 @@ try
     drawnow;
 
     [metric,standardize] = readDistanceInputs(S);
-    nPermutations = readPermutations(S);
-    randomSeed = readSeed(S);
-
     needsGroups = ~strcmp(S.method,'pcoa');
     [groups,groupNames] = readGroups(S,needsGroups);
+    if needsGroups
+        nPermutations = readPermutations(S);
+        randomSeed = readSeed(S);
+    else
+        nPermutations = 0;
+        randomSeed = [];
+    end
+
+    % Snapshot the exact inputs used by this run so the exported
+    % parameter table cannot drift from the live dialog fields.
+    S.run.inputs = struct('method',S.method,'metric',metric, ...
+        'standardize',logical(standardize),'permutations',nPermutations, ...
+        'boundariesText',S.EBoundaries.Value,'seedText',S.ESeed.Value, ...
+        'correction',S.DCorrection.Value);
 
     distanceMatrix = multivariateDistanceMatrix(S.dataMatrix,metric,standardize);
 
     switch S.method
         case 'pcoa'
-            runPcoa(S,distanceMatrix,groups,groupNames);
+            S = runPcoa(S,distanceMatrix,groups,groupNames);
         case 'anosim'
             result = multivariateAnosim(distanceMatrix,groups, ...
                 'Permutations',nPermutations,'RandomSeed',randomSeed);
-            runGroupTest(S,distanceMatrix,groups,groupNames,result,'anosim');
+            S = runGroupTest(S,distanceMatrix,groups,groupNames,result,'anosim');
         case 'permanova'
             result = multivariatePermanova(distanceMatrix,groups, ...
                 'Permutations',nPermutations,'RandomSeed',randomSeed);
-            runGroupTest(S,distanceMatrix,groups,groupNames,result,'permanova');
+            S = runGroupTest(S,distanceMatrix,groups,groupNames,result,'permanova');
     end
 
     setappdata(S.UIFigure,'MULTIVARIATE_STATE',S);
     S.LStatus.Text = 'Done. Use "Save data" to export results.';
 catch ME
-    setappdata(S.UIFigure,'MULTIVARIATE_STATE',S);
+    % S was not mutated on this path; leave any previous run state intact.
     S.LStatus.Text = 'Failed.';
     uialert(S.UIFigure,ME.message,'Multivariate Analysis','Icon','warning');
 end
@@ -350,10 +369,11 @@ end
 end
 
 
-function runPcoa(S,distanceMatrix,groups,groupNames)
+function S = runPcoa(S,distanceMatrix,groups,groupNames)
 result = multivariatePcoa(distanceMatrix,'Correction',S.DCorrection.Value);
 S.run.method = 'pcoa';
 S.run.result = result;
+S.run.distanceMatrix = distanceMatrix;
 S.run.groups = groups;
 S.run.groupNames = groupNames;
 S.run.metricUsed = currentMetricName(S);
@@ -361,16 +381,16 @@ S.run.nullValues = [];
 plotOrdination(S,result,groups,groupNames);
 plotScree(S,result);
 S.TReport.Value = buildPcoaReport(S,result);
-setappdata(S.UIFigure,'MULTIVARIATE_STATE',S);
 disp('>>  Multivariate analysis (PCoA): done. Use Save data to export files.');
 end
 
 
-function runGroupTest(S,distanceMatrix,groups,groupNames,result,kind)
+function S = runGroupTest(S,distanceMatrix,groups,groupNames,result,kind)
 ordinateResult = multivariatePcoa(distanceMatrix);
 S.run.method = kind;
 S.run.result = result;
 S.run.ordinateResult = ordinateResult;
+S.run.distanceMatrix = distanceMatrix;
 S.run.groups = groups;
 S.run.groupNames = groupNames;
 S.run.metricUsed = currentMetricName(S);
@@ -382,7 +402,6 @@ if strcmp(kind,'anosim')
 else
     S.TReport.Value = buildPermanovaReport(S,result);
 end
-setappdata(S.UIFigure,'MULTIVARIATE_STATE',S);
 disp('>>  Multivariate analysis: done. Use Save data to export files.');
 end
 
@@ -452,13 +471,15 @@ ax = S.AxSecondary;
 cla(ax,'reset');
 eigenvalues = ordinateResult.eigenvalues;
 k = numel(eigenvalues);
+yyaxis(ax,'left');
 bar(ax,1:k,eigenvalues,0.6,'FaceColor',[0.2 0.4 0.75]);
-hold(ax,'on');
+ylabel(ax,'Eigenvalue');
+yyaxis(ax,'right');
 plot(ax,1:k,ordinateResult.cumulativeProportion,'-o','LineWidth',1.2, ...
     'Color',[0.85 0.33 0.1],'MarkerFaceColor',[0.85 0.33 0.1]);
-hold(ax,'off');
+ylabel(ax,'Cumulative %');
+ax.YAxis(2).Limits = [0 100];
 xlabel(ax,'Principal coordinate');
-ylabel(ax,'Eigenvalue');
 title(ax,'Scree plot (line: cumulative %)');
 if k <= 30
     ax.XTick = 1:k;
@@ -486,6 +507,14 @@ end
 histogram(ax,nullValues(isfinite(nullValues)),30, ...
     'FaceColor',[0.55 0.65 0.85],'EdgeColor','none');
 hold(ax,'on');
+% The observed statistic can sit outside the null range; widen the x-limits
+% so the marker line and label stay visible.
+yl = ax.YLim;
+xl = ax.XLim;
+lowerLimit = min(xl(1),observed);
+upperLimit = max(xl(2),observed);
+span = max(upperLimit - lowerLimit,eps);
+ax.XLim = [lowerLimit - 0.02*span,upperLimit + 0.10*span];
 yl = ax.YLim;
 plot(ax,[observed observed],yl,'-','Color',S.red,'LineWidth',1.6);
 text(ax,observed,yl(2)*0.95,sprintf('  observed = %.4f',observed), ...
@@ -722,15 +751,16 @@ end
 function writeParameterTable(S,prefix)
 n = size(S.dataMatrix,1);
 p = size(S.dataMatrix,2);
+inputs = S.run.inputs;
 parameterGrid = cell(14,6);
 parameterGrid(1,1) = {'Detailed Parameters Used in Data Processing by Acycle'};
 parameterGrid(2,:) = {'Parameter','Value','','Parameter','Value',''};
 parameterGrid(3,:) = {'Analysis','Multivariate (distance-based)','','Series analyzed (columns)',p,''};
-parameterGrid(4,:) = {'Method',capitalize(S.run.method),'','Samples (rows)',n,''};
-parameterGrid(5,:) = {'Distance metric',currentMetricName(S),'','Standardized (z-score)',num2str(S.CStandardize.Value),''};
-parameterGrid(6,:) = {'Group boundaries',S.EBoundaries.Value,'','Groups defined',num2str(numel(S.run.groupNames)),''};
-if strcmp(S.run.method,'pcoa')
-    parameterGrid(7,:) = {'Eigenvalue correction',S.DCorrection.Value,'','Permutations','-',''};
+parameterGrid(4,:) = {'Method',capitalize(inputs.method),'','Samples (rows)',n,''};
+parameterGrid(5,:) = {'Distance metric',inputs.metric,'','Standardized (z-score)',num2str(inputs.standardize),''};
+parameterGrid(6,:) = {'Group boundaries',inputs.boundariesText,'','Groups defined',num2str(numel(S.run.groupNames)),''};
+if strcmp(inputs.method,'pcoa')
+    parameterGrid(7,:) = {'Eigenvalue correction',inputs.correction,'','Permutations','-',''};
 else
     parameterGrid(7,:) = {'Eigenvalue correction','-','','Permutations',num2str(S.run.result.permutations),''};
 end
@@ -739,7 +769,16 @@ if isfield(S.run.result,'randomSeed')
 else
     seedText = '-';
 end
-parameterGrid(8,:) = {'Random seed',seedText,'','PCoA components exported',num2str(size(S.run.result.coordinates,2)),''};
+% Component count comes from the ordination: for PCoA the result itself,
+% for ANOSIM/PERMANOVA the companion ordination used for the plot.
+if isfield(S.run,'ordinateResult')
+    componentText = num2str(size(S.run.ordinateResult.coordinates,2));
+elseif strcmp(S.run.method,'pcoa')
+    componentText = num2str(size(S.run.result.coordinates,2));
+else
+    componentText = '0';
+end
+parameterGrid(8,:) = {'Random seed',seedText,'','PCoA components exported',componentText,''};
 parameterGrid(9,:) = {'Statistical software','Acycle (MATLAB)','','Algorithm source','PaleoAST (R-validated)',''};
 parameterGrid(10,:) = {'References','','','','',''};
 parameterGrid(11,:) = {'  Gower (1966) Some distance properties of latent root','','','','',''};
@@ -799,12 +838,15 @@ nexttile;
 if strcmp(S.run.method,'pcoa')
     result = S.run.result;
     kk = numel(result.eigenvalues);
+    yyaxis left;
     bar(1:kk,result.eigenvalues,0.6,'FaceColor',[0.2 0.4 0.75]);
-    hold('on');
+    ylabel('Eigenvalue');
+    yyaxis right;
     plot(1:kk,result.cumulativeProportion,'-o','LineWidth',1.2, ...
         'Color',[0.85 0.33 0.1],'MarkerFaceColor',[0.85 0.33 0.1]);
-    hold('off');
-    xlabel('Principal coordinate'); ylabel('Eigenvalue');
+    ylabel('Cumulative %');
+    ylim([0 100]);
+    xlabel('Principal coordinate');
     title('Scree plot (line: cumulative %)');
 else
     nullValues = S.run.nullValues;

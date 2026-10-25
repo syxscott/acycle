@@ -33,12 +33,11 @@ end
 
 GETac_pwd;   % sets ac_pwd to Acycle's working directory
 
-seriesCount = numel(selectedNames);
 columnCount = 0;
 rowCount = [];
 axisValues = [];
 dataMatrix = [];
-seriesNames = cell(1,seriesCount);
+seriesNames = cell(1,numel(selectedNames));
 
 for k = 1:seriesCount
     filePath = fullfile(ac_pwd,selectedNames{k});

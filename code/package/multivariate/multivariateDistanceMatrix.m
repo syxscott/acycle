@@ -40,7 +40,7 @@ if any(isnan(X(:))) || any(isinf(X(:)))
         'The data matrix contains NaN or Inf values. Remove or interpolate them first.');
 end
 
-metricUsed = validateAndNormalizeMetric(metric,standardize);
+metricUsed = validateAndNormalizeMetric(metric);
 
 if standardize && strcmp(metricUsed,'braycurtis')
     error('Acycle:Multivariate:StandardizeBrayCurtis', ...
@@ -113,7 +113,7 @@ end
 end
 
 
-function metricUsed = validateAndNormalizeMetric(metric,standardize)
+function metricUsed = validateAndNormalizeMetric(metric)
 if isstring(metric)
     metric = char(metric);
 end
